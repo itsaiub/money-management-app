@@ -1,6 +1,9 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const registerValidator = require("../validator/registerValidator");
+const loginValidator = require("../validator/loginValidator");
 const User = require("../model/User");
+const { catchServerError, catchResourceError } = require("../util/error");
 
 // login controller
 
@@ -20,16 +23,12 @@ module.exports = {
       User.findOne({ email })
         .then(user => {
           if (user) {
-            return res.status(400).json({
-              message: "Email already exits"
-            });
+            return catchResourceError(res, "Email already exits");
           }
 
           bcrypt.hash(password, 11, (err, hash) => {
             if (err) {
-              return res.status(500).json({
-                message: "Server error"
-              });
+              catchServerError(res, err);
             }
             let user = new User({
               name,
@@ -44,28 +43,49 @@ module.exports = {
                   user
                 });
               })
-              .catch(err => {
-                return res.status(500).json({
-                  message: "Server error occurred."
-                });
-              });
+              .catch(err => catchServerError(res, err));
           });
         })
-        .catch(err => {
-          res.status(500).json({
-            message: "Server error occurred."
-          });
-        });
+        .catch(err => catchServerError(res, err));
     }
   },
 
   login(req, res) {
-    let name = req.body.name;
-    let email = req.body.password;
+    let { email, password } = req.body;
 
-    res.json({
-      hee: req.body,
-      message: "hello " + name + " " + email
-    });
+    let validate = loginValidator({ email, password });
+    if (!validate.isValid) {
+      return res.status(400).json(validate.error);
+    }
+    User.findOne({ email })
+      .then(user => {
+        if (!user) {
+          return catchResourceError(res, "User not found");
+        }
+        bcrypt.compare(password, user.password, (err, result) => {
+          if (err) {
+            return catchServerError(res, err);
+          }
+          if (!result) {
+            return catchResourceError(res, "Password doesn't match");
+            // catchResourceError(res, "Password doesn't match");
+          }
+          let token = jwt.sign(
+            {
+              _id: user._id,
+              name: user.name,
+              email: user.email
+            },
+            "SECRET",
+            { expiresIn: "2h" }
+          );
+
+          return res.status(200).json({
+            message: "Login Successful",
+            token: `Bearer ${token}`
+          });
+        });
+      })
+      .catch(err => catchServerError(res, error));
   }
 };
