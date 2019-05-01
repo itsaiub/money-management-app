@@ -1,4 +1,6 @@
+const bcrypt = require("bcrypt");
 const registerValidator = require("../validator/registerValidator");
+const User = require("../model/User");
 
 // login controller
 
@@ -13,11 +15,47 @@ module.exports = {
     });
 
     if (!validate.isValid) {
-      res.status(400).json(validate.error);
+      return res.status(400).json(validate.error);
     } else {
-      res.status(200).json({
-        message: "everything is okay"
-      });
+      User.findOne({ email })
+        .then(user => {
+          if (user) {
+            return res.status(400).json({
+              message: "Email already exits"
+            });
+          }
+
+          bcrypt.hash(password, 11, (err, hash) => {
+            if (err) {
+              return res.status(500).json({
+                message: "Server error"
+              });
+            }
+            let user = new User({
+              name,
+              email,
+              password: hash
+            });
+            user
+              .save()
+              .then(user => {
+                return res.status(201).json({
+                  message: "User created successfully",
+                  user
+                });
+              })
+              .catch(err => {
+                return res.status(500).json({
+                  message: "Server error occurred."
+                });
+              });
+          });
+        })
+        .catch(err => {
+          res.status(500).json({
+            message: "Server error occurred."
+          });
+        });
     }
   },
 
