@@ -20,14 +20,13 @@ const Register = props => {
       { name, email, password, confirmPassword },
       props.history
     );
-    console.log("submitted");
   };
 
   useEffect(() => {
     setError(props.error);
   }, [props.error]);
 
-  console.log(props);
+  console.log(error.message);
 
   return (
     <div className="row">
@@ -72,6 +71,9 @@ const Register = props => {
                     />
                     {error.email && (
                       <div className="invalid-feedback">{error.email}</div>
+                    )}
+                    {error.message && (
+                      <div className="invalid-feedback">{error.message}</div>
                     )}
                   </div>
                   <div className="form-group">
@@ -142,7 +144,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    registerUser: user => dispatch(register(user))
+    registerUser: (user, history) => dispatch(register(user, history))
   };
 };
 

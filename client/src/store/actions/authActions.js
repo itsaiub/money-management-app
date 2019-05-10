@@ -10,12 +10,11 @@ export const register = (user, history) => dispatch => {
           error: {}
         }
       });
-      console.log(res);
+      console.log(res, history);
       history.push("/login");
     })
     .catch(error => {
       console.log(error);
-
       dispatch({
         type: Types.USERS_ERROR,
         payload: {
