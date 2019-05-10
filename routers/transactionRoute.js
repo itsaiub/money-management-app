@@ -6,10 +6,11 @@ const {
   update,
   remove
 } = require("../controllers/transactionController");
+const authenticate = require("../authenticate");
 
-router.get("/", getAll);
+router.get("/", authenticate, getAll);
 
-router.post("/", create);
+router.post("/", authenticate, create);
 
 router.get("/:transactionId", getSingleTransaction);
 

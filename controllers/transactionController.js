@@ -17,7 +17,7 @@ module.exports = {
     transaction
       .save()
       .then(trans => {
-        let updatedUser = { ...req.user };
+        let updatedUser = { ...req.user._doc };
         if (type === "income") {
           (updatedUser.balance = updatedUser.balance + amount),
             (updatedUser.income = updatedUser.income + amount);
@@ -27,9 +27,9 @@ module.exports = {
         }
         updatedUser.transactions.unshift(trans._id);
         User.findByIdAndUpdate(updatedUser._id, { $set: { updatedUser } });
-        res.status(201).json({
+        return res.status(201).json({
           message: "Trasacton created successfully",
-          ...trans
+          ...trans._doc
         });
       })
       .catch(err => catchServerError(res, err));
@@ -39,11 +39,11 @@ module.exports = {
     Transaction.find()
       .then(transactions => {
         if (transactions.length === 0) {
-          res.status(204).json({
+          return res.status(204).json({
             message: "No transaction found."
           });
         } else {
-          res.status(200).json(transactions);
+          return res.status(200).json(transactions);
         }
       })
       .catch(err => catchServerError(res, err));
@@ -54,11 +54,11 @@ module.exports = {
     Transaction.findById(transactionId)
       .then(transaction => {
         if (!transaction) {
-          res.status(204).json({
+          return res.status(204).json({
             message: "No transaction found."
           });
         } else {
-          res.status(200).json(transaction);
+          return res.status(200).json(transaction);
         }
       })
       .catch(err => catchServerError(res, err));
@@ -68,7 +68,7 @@ module.exports = {
     let { transactionId } = req.params;
     User.findByIdAndUpdate(transactionId, { $set: req.body })
       .then(result => {
-        res.status(200).json({
+        return res.status(200).json({
           message: "Updated successfully.",
           ...result
         });
@@ -79,7 +79,7 @@ module.exports = {
     let { transactionId } = req.params;
     User.findByIdAndRemove(transactionId)
       .then(result => {
-        res.status(200).json({
+        return res.status(200).json({
           message: "Deleted successfully.",
           ...result
         });

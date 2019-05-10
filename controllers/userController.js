@@ -33,7 +33,11 @@ module.exports = {
             let user = new User({
               name,
               email,
-              password: hash
+              password: hash,
+              income: 0,
+              expense: 0,
+              amount: 0,
+              transactions: []
             });
             user
               .save()
@@ -87,7 +91,7 @@ module.exports = {
 
           return res.status(200).json({
             message: "Login Successful",
-            token: `Bearer${token}`
+            token: `Bearer ${token}`
           });
         });
       })
