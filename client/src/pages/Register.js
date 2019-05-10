@@ -63,7 +63,9 @@ const Register = props => {
                       value={email}
                       type="email"
                       className={
-                        error.email ? "form-control is-invalid" : "form-control"
+                        error.email || error.message
+                          ? "form-control is-invalid"
+                          : "form-control"
                       }
                       id="inputEmail3"
                       placeholder="email@gmail.com"

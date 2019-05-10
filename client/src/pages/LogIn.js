@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { login } from "../store/actions/authActions";
 
-const LogIn = () => {
+const LogIn = props => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState({});
 
   const inputHandler = e => {
     return e.target.value;
@@ -11,8 +14,12 @@ const LogIn = () => {
 
   const submitHandler = e => {
     e.preventDefault();
-    console.log("submitted");
+    props.loginUser({ email, password }, props.history);
   };
+
+  useEffect(() => {
+    setError(props.error);
+  }, [props.error]);
 
   return (
     <div className="row">
@@ -32,11 +39,16 @@ const LogIn = () => {
                       onChange={e => setEmail(inputHandler(e))}
                       value={email}
                       type="email"
-                      className="form-control"
+                      className={
+                        error.email ? "form-control is-invalid" : "form-control"
+                      }
                       id="inputEmail3"
                       placeholder="email@gmail.com"
                       required=""
                     />
+                    {error.email && (
+                      <div className="invalid-feedback">{error.email}</div>
+                    )}
                   </div>
                   <div className="form-group">
                     <label htmlFor="inputPassword3">Password</label>
@@ -44,12 +56,24 @@ const LogIn = () => {
                       onChange={e => setPassword(inputHandler(e))}
                       value={password}
                       type="password"
-                      className="form-control"
+                      className={
+                        error.password || error.message
+                          ? "form-control is-invalid"
+                          : "form-control"
+                      }
                       id="inputPassword3"
                       placeholder="password"
                       title="At least 6 characters with letters and numbers"
                       required=""
                     />
+                    {error.password && (
+                      <div className="invalid-feedback">{error.password}</div>
+                    )}
+                    {error.message && (
+                      <div className="invalid-feedback">
+                        {error.message} with the database
+                      </div>
+                    )}
                   </div>
                   <div className="form-group">
                     <Link to="/register">
@@ -72,4 +96,18 @@ const LogIn = () => {
   );
 };
 
-export default LogIn;
+const mapStateToProps = state => {
+  return {
+    error: state.auth.error
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    loginUser: (user, history) => dispatch(login(user, history))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LogIn);
