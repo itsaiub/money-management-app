@@ -58,6 +58,7 @@ module.exports = {
       return res.status(400).json(validate.error);
     }
     User.findOne({ email })
+      //Todo: use populate for transaction
       .then(user => {
         if (!user) {
           return catchResourceError(res, "User not found");
@@ -74,7 +75,11 @@ module.exports = {
             {
               _id: user._id,
               name: user.name,
-              email: user.email
+              email: user.email,
+              amount: user.amount,
+              income: user.income,
+              expense: user.expense,
+              transactions: user.transactions
             },
             "SECRET",
             { expiresIn: "2h" }
