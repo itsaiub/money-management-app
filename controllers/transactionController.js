@@ -26,11 +26,19 @@ module.exports = {
             (updatedUser.expense = updatedUser.expense + amount);
         }
         updatedUser.transactions.unshift(trans._id);
-        User.findByIdAndUpdate(updatedUser._id, { $set: { updatedUser } });
-        return res.status(201).json({
-          message: "Trasacton created successfully",
-          ...trans._doc
-        });
+        User.findByIdAndUpdate(
+          updatedUser._id,
+          { $set: updatedUser },
+          { new: true }
+        )
+          .then(result => {
+            res.status(201).json({
+              message: "Trasacton created successfully",
+              ...trans._doc,
+              user: result
+            });
+          })
+          .catch(err => catchServerError(res, err));
       })
       .catch(err => catchServerError(res, err));
   },

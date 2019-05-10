@@ -36,7 +36,7 @@ module.exports = {
               password: hash,
               income: 0,
               expense: 0,
-              amount: 0,
+              balance: 0,
               transactions: []
             });
             user
@@ -96,5 +96,13 @@ module.exports = {
         });
       })
       .catch(err => catchServerError(res, error));
+  },
+
+  allUser(req, res) {
+    User.find()
+      .then(users => {
+        return res.status(200).json(users);
+      })
+      .catch(err => catchServerError(res, err));
   }
 };

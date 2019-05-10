@@ -12,10 +12,10 @@ router.get("/", authenticate, getAll);
 
 router.post("/", authenticate, create);
 
-router.get("/:transactionId", getSingleTransaction);
+router.get("/:transactionId", authenticate, getSingleTransaction);
 
-router.put("/:transactionId", update);
+router.put("/:transactionId", authenticate, update);
 
-router.delete("/:transactionId", remove);
+router.delete("/:transactionId", authenticate, remove);
 
 module.exports = router;
